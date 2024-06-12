@@ -17,7 +17,7 @@ on:
 
 name: build images && push
 jobs:
-  syncimages:
+  buildimages:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repos
