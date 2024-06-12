@@ -5,7 +5,7 @@ on:
       arg_name:
         description: '镜像名称,完整标签, nginx:latest'
         required: true
-        default: ''
+        default: 'php:8.0'
       arg_aliyunurl:
         description: 'githubcr地址: '
         required: true
