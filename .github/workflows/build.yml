@@ -38,3 +38,24 @@ jobs:
       run: |
         docker build . -t ${{ github.event.inputs.arg_aliyunurl }}/${{ github.event.inputs.arg_aliyunuser }}/${{ github.event.inputs.arg_name }}
         docker push ${{ github.event.inputs.arg_aliyunurl }}/${{ github.event.inputs.arg_aliyunuser }}/${{ github.event.inputs.arg_name }}
+
+    - name: Release set path
+      run: |
+        touch release.txt
+        echo ${{ github.event.inputs.arg_aliyunurl }}/${{ github.event.inputs.arg_aliyunuser }}/${{ github.event.inputs.arg_name }} >> release.txt
+
+    - name: Generate valid tag name
+      run: |
+        TAG_NAME=$(echo $TAG_NAME | sed 's/:/_/g')
+        echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
+      env:
+        TAG_NAME: ${{ github.event.inputs.arg_name }}
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.tag_name }}
+        body_path: release.txt
+        files: release.txt
