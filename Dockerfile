@@ -1,30 +1,27 @@
-# 基于指定的ROCm基础镜像
-FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/rocm/dev-ubuntu-24.04:7.2-complete
+FROM registry.cn-hangzhou.aliyuncs.com/jcleng/library-node:20
+# TO registry.cn-hangzhou.aliyuncs.com/jcleng/mcpproxy
+# 设置环境变量
+ENV GO_VERSION=1.22.5
+ENV GOPATH=/go
+ENV PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 
-LABEL description="ROCm 7.1.1 + Latest Ollama Service"
-
-# 设置环境变量，避免交互提示，指定Ollama安装目录
-ENV DEBIAN_FRONTEND=noninteractive
-ENV OLLAMA_HOME=/root/.ollama
-ENV PATH="$PATH:/usr/local/bin"
-
-# 更新系统包并安装必要依赖（curl用于下载Ollama，ca-certificates确保HTTPS下载）
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+# 安装基础依赖
+RUN apt-get update && apt-get install -y \
     curl \
+    git \
     ca-certificates \
-    zstd \
-    && apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-# 下载并安装最新版Ollama
-RUN curl -fsSL https://ollama.com/install.sh | sh
+# 安装 Golang
+RUN curl -fsSL https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz -o go.tar.gz \
+    && tar -C /usr/local -xzf go.tar.gz \
+    && rm go.tar.gz
 
-# 创建Ollama数据目录（避免启动时目录不存在）
-RUN mkdir -p ${OLLAMA_HOME} && chmod 777 ${OLLAMA_HOME}
+# 安装 mcpproxy-go
+RUN go install github.com/smart-mcp-proxy/mcpproxy-go/cmd/mcpproxy@latest
 
-# 暴露Ollama默认端口（供外部访问）
-EXPOSE 11434
+# 暴露端口
+EXPOSE 8080
 
-# 设置容器启动命令，后台运行Ollama服务并保持容器不退出
-CMD ["sh", "-c", "ollama serve & tail -f /dev/null"]
+# 启动 mcpproxy serve
+CMD ["mcpproxy", "serve", "--host", "0.0.0.0", "--port", "8080"]
