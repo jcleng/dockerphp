@@ -159,14 +159,9 @@ RUN set -eux; \
     php --version; \
     php -m
 
-# On Debian Trixie (the base image for php:8.1-zts), install-php-extensions enables
-# Swoole's io_uring support by default. Inside Docker the io_uring_setup syscall is
-# blocked by the default seccomp profile (EPERM), and Swoole's io_uring path is then
-# left half-initialised, which makes every coroutine file read (e.g. Hyperf's
-# watcher reading composer.json) fail with "Failed to open stream: Success".
-# Disable io_uring at build time so Swoole uses its regular (working) AIO path.
-ENV IPE_SWOOLE_WITHOUT_IOURING=1
-
+# Pin Swoole to 5.0.3 (the version used by the original project image) to keep the
+# runtime baseline stable. Swoole 5.x does not include the io_uring file-async path
+# that breaks coroutine file reads inside Docker's default seccomp profile.
 RUN set -eux; \
     chmod +x /usr/local/bin/install-php-extensions; \
     install-php-extensions \
@@ -197,7 +192,7 @@ RUN set -eux; \
     pgsql \
     redis \
     sockets \
-    swoole \
+    swoole-5.0.3 \
     sysvmsg \
     sysvsem \
     sysvshm \
