@@ -205,3 +205,12 @@ RUN set -eux; \
     yaml \
     zip \
     parallel
+
+# Install Composer (the project uses `composer install` / `composer dump-autoload`).
+# Uses the official signed phar from getcomposer.org.
+ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN set -eux; \
+    curl -fsSL -o /tmp/composer-setup.php https://getcomposer.org/installer; \
+    php /tmp/composer-setup.php --quiet --install-dir=/usr/local/bin --filename=composer; \
+    rm -f /tmp/composer-setup.php; \
+    composer --version
