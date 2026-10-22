@@ -85,7 +85,8 @@ RUN set -eux; \
     \
     gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
     debMultiarch="$(dpkg-architecture --query DEB_BUILD_MULTIARCH)"; \
-    if [ ! -d /usr/include/curl ]; then \
+    if [ -d "/usr/include/$debMultiarch/curl" ]; then \
+        rm -rf /usr/local/include/curl; \
         ln -sT "/usr/include/$debMultiarch/curl" /usr/local/include/curl; \
     fi; \
     ./configure \
