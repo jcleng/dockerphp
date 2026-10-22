@@ -198,6 +198,9 @@ RUN set -eux; \
     redis \
     sockets \
     swoole \
+    sysvmsg \
+    sysvsem \
+    sysvshm \
     tidy \
     timezonedb \
     uuid \
