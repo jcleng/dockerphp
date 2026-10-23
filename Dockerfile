@@ -214,6 +214,11 @@ RUN set -eux; \
     echo 'extension=swoole.so' >> /usr/local/etc/php/conf.d/docker-php-ext-swoole.ini; \
     php -r 'var_dump(ini_get("swoole.use_shortname"));'
 
+# Set the default timezone (avoids "It is not safe to rely on the system's timezone" warnings).
+RUN set -eux; \
+    echo 'date.timezone = Asia/Shanghai' > /usr/local/etc/php/conf.d/zz-datetime.ini; \
+    php -r 'var_dump(ini_get("date.timezone"));'
+
 # Install Composer (the project uses `composer install` / `composer dump-autoload`).
 # Uses the official signed phar from getcomposer.org.
 ENV COMPOSER_ALLOW_SUPERUSER=1
